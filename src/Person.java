@@ -4,6 +4,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static java.util.Locale.filter;
 
 public class Person implements Comparable<Person>, Serializable{
     private String imie;
@@ -282,4 +286,16 @@ public class Person implements Comparable<Person>, Serializable{
 //
 //        return String.format(result, objects, relations);
 //    }
+
+    public static List<Person> filterByName(List<Person> list, String substring){
+        Stream<Person> x = list.stream();
+        x.filter(person -> person.nazwisko.contains(substring));
+        return x.collect(Collectors.toList());
+    }
+
+    public static List<Person> sortByBirthdateDate(List<Person> personList){
+        return personList.stream()
+                .sorted()
+                .collect(Collectors.toList());
+    }
 }
