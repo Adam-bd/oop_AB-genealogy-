@@ -50,12 +50,12 @@ public class Main {
 //        }
 
         //-----------lab6-start-------------------------------------------------------------------------
-//        System.out.println(Person.fromCsvLine("Marek Kowalski,15.05.1899,25.06.1957,,"));
-//        try {
-//            osoby=Person.fromCsv("family.csv");
-//        } catch (IOException e) {
-//            System.err.println("Błąd podczas odczytu linii: " + e.getMessage());;
-//        }
+        System.out.println(Person.fromCsvLine("Marek Kowalski,15.05.1899,25.06.1957,,"));
+        try {
+            osoby=Person.fromCsv("family.csv");
+        } catch (IOException e) {
+            System.err.println("Błąd podczas odczytu linii: " + e.getMessage());;
+        }
 //        System.out.println(osoby);
 //
 //        System.out.println("_____________Zapis i odczyt listy obiektów Person - pliki binarne__________________________________________");

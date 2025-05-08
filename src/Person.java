@@ -288,9 +288,9 @@ public class Person implements Comparable<Person>, Serializable{
 //    }
 
     public static List<Person> filterByName(List<Person> list, String substring){
-        Stream<Person> x = list.stream();
-        x.filter(person -> person.nazwisko.contains(substring));
-        return x.collect(Collectors.toList());
+        return list.stream()
+                .filter(person -> person.nazwisko.contains(substring))
+                .collect(Collectors.toList());
     }
 
     public static List<Person> sortByBirthdateDate(List<Person> personList){
