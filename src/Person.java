@@ -2,6 +2,9 @@ import java.io.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
+
 public class Person implements Comparable<Person>, Serializable{
     private String imie;
     private String nazwisko;
@@ -190,4 +193,93 @@ public class Person implements Comparable<Person>, Serializable{
         Collections.sort(sortedChildren);
         return sortedChildren;
     }
+
+    public String toPlantUMLTree() {
+        String result = "@startuml\n%s\n%s\n@enduml";
+        Function<String, String> objectLine = str -> String.format("object \"%s\" as %s\n",str, str.replaceAll(" ", ""));
+        Function<String[], String> relationLine = str -> {return String.format("%s<--%s\n",str[0],str[1]) ;};
+
+        StringBuilder objects = new StringBuilder();
+        StringBuilder relations = new StringBuilder();
+        objects.append(objectLine.apply(imie + " " + nazwisko));
+
+        for(Person child: children) {
+            objects.append(objectLine.apply(child.imie + " " + child.nazwisko));
+            String[] relation = new String[]{imie+nazwisko,child.imie+child.nazwisko};
+            relations.append(relationLine.apply(relation));
+        }
+        return String.format(result, objects, relations);
+    }
+
+    public static String toPlantUMLTree(List<Person> people) {
+        String result = "@startuml\n%s\n%s\n@enduml";
+        Function<String, String> objectLine = str -> String.format("object \"%s\" as %s\n", str, str.replaceAll(" ", ""));
+        Function<String[], String> relationLine = pair -> String.format("%s<--%s\n", pair[0], pair[1]);
+
+        StringBuilder objects = new StringBuilder();
+        StringBuilder relations = new StringBuilder();
+        Set<String> addedObjects = new HashSet<>();
+        Set<String> addedRelations = new HashSet<>();
+
+        Consumer<Person> addPerson = person -> {
+            String personKey = person.getImie() + " " + person.getNazwisko();
+            if (addedObjects.add(personKey)) {
+                objects.append(objectLine.apply(personKey));
+            }
+
+            for (Person child : person.getChildren()) {
+                String childKey = child.getImie() + " " + child.getNazwisko();
+                if (addedObjects.add(childKey)) {
+                    objects.append(objectLine.apply(childKey));
+                }
+
+                String[] relationPair = new String[] { person.imie+person.nazwisko, child.imie+child.nazwisko };
+                String relationStr = relationLine.apply(relationPair);
+                if (addedRelations.add(relationStr)) {
+                    relations.append(relationStr);
+                }
+            }
+        };
+
+        people.forEach(addPerson);
+
+        return String.format(result, objects, relations);
+    }
+
+
+    // rozwiązanie bez Consumer
+    //    public static String toPlantUMLTree(List<Person> people) {
+//        String result = "@startuml\n%s\n%s\n@enduml";
+//        Function<String, String> objectLine = str -> String.format("object \"%s\" as %s\n", str, str.replaceAll(" ", ""));
+//        Function<String[], String> relationLine = pair -> String.format("%s<--%s\n", pair[0].replaceAll(" ", ""), pair[1].replaceAll(" ", ""));
+//
+//        StringBuilder objects = new StringBuilder();
+//        StringBuilder relations = new StringBuilder();
+//
+//        Set<String> addedObjects = new HashSet<>();
+//        Set<String> addedRelations = new HashSet<>();
+//
+//        for (Person person : people) {
+//            String parentKey = person.getImie() + " " + person.getNazwisko();
+//            if (addedObjects.add(parentKey)) {
+//                objects.append(objectLine.apply(parentKey));
+//            }
+//
+//            for (Person child : person.getChildren()) {
+//                String childKey = child.getImie() + " " + child.getNazwisko();
+//
+//                if (addedObjects.add(childKey)) {
+//                    objects.append(objectLine.apply(childKey));
+//                }
+//
+//                String[] relationPair = new String[] { parentKey, childKey };
+//                String relationString = relationLine.apply(relationPair);
+//                if (addedRelations.add(relationString)) {
+//                    relations.append(relationString);
+//                }
+//            }
+//        }
+//
+//        return String.format(result, objects, relations);
+//    }
 }
