@@ -198,17 +198,19 @@ public class Person implements Comparable<Person>, Serializable{
         return sortedChildren;
     }
 
-    public String toPlantUMLTree() {
+    public String toPlantUMLTree(Function<String, String> postProcess) {
         String result = "@startuml\n%s\n%s\n@enduml";
         Function<String, String> objectLine = str -> String.format("object \"%s\" as %s\n",str, str.replaceAll(" ", ""));
         Function<String[], String> relationLine = str -> {return String.format("%s<--%s\n",str[0],str[1]) ;};
 
+        Function<String, String> objectLinePostProcess = objectLine.andThen(postProcess);
+
         StringBuilder objects = new StringBuilder();
         StringBuilder relations = new StringBuilder();
-        objects.append(objectLine.apply(imie + " " + nazwisko));
+        objects.append(objectLinePostProcess.apply(imie + " " + nazwisko) + "\n");
 
         for(Person child: children) {
-            objects.append(objectLine.apply(child.imie + " " + child.nazwisko));
+            objects.append(objectLinePostProcess.apply(child.imie + " " + child.nazwisko) + "\n");
             String[] relation = new String[]{imie+nazwisko,child.imie+child.nazwisko};
             relations.append(relationLine.apply(relation));
         }
@@ -297,5 +299,22 @@ public class Person implements Comparable<Person>, Serializable{
         return personList.stream()
                 .sorted()
                 .collect(Collectors.toList());
+    }
+
+    public static List<Person> sortDeadByLifespan(List<Person> personList){
+        return personList.stream()
+                .filter(person -> person.dataSmierci != null)
+                .sorted((p1, p2) -> {
+                    long age1 = p1.dataSmierci.toEpochDay() - p1.dataUrodzin.toEpochDay();
+                    long age2 = p2.dataSmierci.toEpochDay() - p2.dataUrodzin.toEpochDay();
+                    return Long.compare(age2, age1);
+                })
+                .toList();
+    }
+
+    public static Person eldest(List<Person> personList){
+        return personList.stream()
+                .filter(person -> person.dataSmierci == null)
+                .min(Comparator.comparing(person -> person.dataUrodzin)).orElse(null);
     }
 }

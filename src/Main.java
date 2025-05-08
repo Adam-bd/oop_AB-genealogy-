@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 public class Main {
     public static void main(String[] args) throws IOException, ClassNotFoundException {
@@ -77,6 +78,20 @@ public class Main {
         for(Person o: osoby1){
             System.out.println(o + "\n");
         }
+
+        System.out.println("Filtrowanie wzgl długości życia: ");
+        osoby1 = Person.sortDeadByLifespan(osoby);
+        for(Person o: osoby1){
+            System.out.println(o + "\n");
+        }
+
+        System.out.println("Najstarsza żyjąca osoba: " + Person.eldest(osoby));
+
+        PlantUMLRunner.setPath("plantuml-1.2025.2.jar");
+        Function<String, String> postProcess = str -> {return str + " #666666";};
+        PlantUMLRunner.generate(Person.toPlantUMLTree(osoby), "outSVG", "family");
+
+        PlantUMLRunner.generate(osoby.get(0).toPlantUMLTree(postProcess), "outSVG", "family");
 
     }
 }
